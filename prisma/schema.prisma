@@ -17,3 +17,10 @@ model Image {
   volatility Float
   votes      Int
 }
+
+model Vote {
+  id      Int    @id @default(autoincrement())
+  left    String
+  right   String
+  outcome Int
+}

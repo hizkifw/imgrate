@@ -66,8 +66,8 @@ export default async function handler(
     }
     ranking.updateRatings(outcomes);
 
-    await prisma.$transaction(
-      Object.entries(players).map(([filename, player]) =>
+    await prisma.$transaction([
+      ...Object.entries(players).map(([filename, player]) =>
         prisma.image.update({
           where: { filename },
           data: {
@@ -81,8 +81,18 @@ export default async function handler(
             },
           },
         })
-      )
-    );
+      ),
+      ...votes.map((vote) =>
+        prisma.vote.create({
+          data: {
+            left: vote.left,
+            right: vote.right,
+            outcome:
+              vote.outcome === 'left' ? 1 : vote.outcome === 'right' ? 0 : -1,
+          },
+        })
+      ),
+    ]);
 
     res.status(200).json({ success: true });
   } catch (ex) {
